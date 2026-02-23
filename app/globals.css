@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 255, 255, 255;
+  --surface-rgb: 255, 255, 255;
+  --ring-rgb: 2, 132, 199;
+  --shadow-soft: 0 10px 30px rgba(2, 24, 53, 0.08);
+}
+
+body {
+  font-family: var(--font-sans), sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background:
+    radial-gradient(1200px 400px at 50% -10%, rgba(14, 165, 233, 0.14), transparent 65%),
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition: 150ms ease;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(var(--ring-rgb), 0.75);
+  outline-offset: 2px;
+}
+
+@layer utilities {
+  .site-surface {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.95)),
+      rgb(var(--background-end-rgb));
+  }
+
+  .surface-card {
+    background: rgba(var(--surface-rgb), 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(4px);
+  }
+
+  .section-container {
+    @apply container mx-auto px-4;
+  }
+
+  .heading-serif {
+    font-family: var(--font-serif), serif;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
