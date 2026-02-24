@@ -1,11 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import CatalogImageGrid from './CatalogImageGrid'
 
 const RESERVED = new Set(['custom', 'pharmacy', 'veterinary'])
+const MERGED_INTO_SEASONAL = new Set(['holiday'])
 const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp'])
 const HIDDEN_PREFIX = '.'
 
@@ -30,10 +31,6 @@ const LABELS: Record<string, { title: string; description: string }> = {
     title: 'Grocery Bags',
     description: 'Paper grocery bag options for retail and checkout use cases.',
   },
-  holiday: {
-    title: 'Holiday Bags',
-    description: 'Holiday-themed paper bag designs including seasonal programs.',
-  },
   'magazine-comics': {
     title: 'Dispensary Store Bags',
     description: 'Bag options and print examples for dispensary storefront and counter use.',
@@ -48,8 +45,8 @@ const LABELS: Record<string, { title: string; description: string }> = {
     description: 'Pride-themed paper bag designs for inclusive retail programs.',
   },
   seasonal: {
-    title: 'Seasonal Bags',
-    description: 'Seasonal and holiday-style paper bag designs.',
+    title: 'Seasonal & Holiday Bags',
+    description: 'Seasonal and holiday-style paper bag designs in one combined collection.',
   },
   usa: {
     title: 'USA Bags',
@@ -95,7 +92,12 @@ function getImageList(dirPath: string, slug: string): { src: string; name: strin
 }
 
 function isCatalogDirectory(basePath: string, folderName: string): boolean {
-  if (!folderName || folderName.startsWith(HIDDEN_PREFIX) || RESERVED.has(folderName)) {
+  if (
+    !folderName ||
+    folderName.startsWith(HIDDEN_PREFIX) ||
+    RESERVED.has(folderName) ||
+    MERGED_INTO_SEASONAL.has(folderName)
+  ) {
     return false
   }
 
@@ -123,6 +125,10 @@ export async function generateMetadata({
   params: Promise<{ folder: string }>
 }): Promise<Metadata> {
   const { folder } = await params
+  if (MERGED_INTO_SEASONAL.has(folder)) {
+    const seasonalCopy = LABELS.seasonal
+    return { title: seasonalCopy.title, description: seasonalCopy.description }
+  }
   const catalogRoot = path.join(process.cwd(), 'public', 'catalog')
   if (!isCatalogDirectory(catalogRoot, folder)) return {}
   const copy = LABELS[folder]
@@ -138,12 +144,19 @@ export default async function CatalogFolderPage({
   params: Promise<{ folder: string }>
 }) {
   const { folder } = await params
+  if (MERGED_INTO_SEASONAL.has(folder)) {
+    redirect('/catalog/seasonal')
+  }
   const catalogRoot = path.join(process.cwd(), 'public', 'catalog')
   if (!isCatalogDirectory(catalogRoot, folder)) notFound()
 
   const folderPath = path.join(catalogRoot, folder)
-
-  const images = getImageList(folderPath, folder)
+  const images =
+    folder === 'seasonal'
+      ? [...getImageList(folderPath, folder), ...getImageList(path.join(catalogRoot, 'holiday'), 'holiday')].sort((a, b) =>
+          a.src.localeCompare(b.src)
+        )
+      : getImageList(folderPath, folder)
   const copy = LABELS[folder]
   const pageTitle = copy?.title || `${titleFromSlug(folder)} Bags`
   const description =
@@ -164,28 +177,7 @@ export default async function CatalogFolderPage({
 
       <section className="py-16">
         <div className="section-container">
-          {images.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {images.map((img) => (
-                <div
-                  key={img.src}
-                  className="surface-card rounded-xl overflow-hidden"
-                >
-                  <div className="aspect-square relative bg-slate-100">
-                    <Image
-                      src={img.src}
-                      alt={img.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-slate-600 text-lg">No images found in this catalog section yet.</p>
-          )}
+          <CatalogImageGrid images={images} />
         </div>
       </section>
 

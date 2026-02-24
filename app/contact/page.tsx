@@ -157,7 +157,7 @@ export default function ContactPage() {
                     <option value="custom">Custom Printed Bags</option>
                     <option value="dispensary">Dispensary Bags</option>
                     <option value="faith">Faith & Religion Bags</option>
-                    <option value="holiday">Holiday Bags</option>
+                    <option value="seasonal">Seasonal & Holiday Bags</option>
                     <option value="pharmacy">Pharmacy Bags</option>
                     <option value="pride">Pride Bags</option>
                     <option value="usa">USA Bags</option>

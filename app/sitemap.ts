@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     fs.existsSync(catalogRoot)
       ? fs
           .readdirSync(catalogRoot, { withFileTypes: true })
-          .filter((entry) => entry.isDirectory())
+          .filter((entry) => entry.isDirectory() && entry.name !== 'holiday')
           .map((entry) => `/catalog/${entry.name}`)
       : []
 
