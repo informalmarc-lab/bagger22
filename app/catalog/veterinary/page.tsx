@@ -116,6 +116,7 @@ export default function VeterinaryCatalog() {
                       alt={img.name}
                       fill
                       priority={idx < 6}
+                      loading={idx < 6 ? 'eager' : 'lazy'}
                       quality={56}
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -191,6 +192,7 @@ export default function VeterinaryCatalog() {
                           alt={img.name}
                           fill
                           priority={idx < 6}
+                          loading={idx < 6 ? 'eager' : 'lazy'}
                           quality={56}
                           className="object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"

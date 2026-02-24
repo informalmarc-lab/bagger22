@@ -86,6 +86,7 @@ export default function Gallery() {
                       alt={img.name}
                       fill
                       priority={idx < 12}
+                      loading={idx < 12 ? 'eager' : 'lazy'}
                       quality={54}
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"

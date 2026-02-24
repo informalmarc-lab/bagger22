@@ -8,6 +8,7 @@ import CatalogImageGrid from './CatalogImageGrid'
 const RESERVED = new Set(['custom', 'pharmacy', 'veterinary'])
 const MERGED_INTO_SEASONAL = new Set(['holiday'])
 const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp'])
+const EXT_PRIORITY: Record<string, number> = { '.webp': 5, '.png': 4, '.jpg': 3, '.jpeg': 2, '.gif': 1 }
 const HIDDEN_PREFIX = '.'
 
 const LABELS: Record<string, { title: string; description: string }> = {
@@ -66,8 +67,8 @@ function titleFromSlug(slug: string) {
 }
 
 function getImageList(dirPath: string, slug: string): { src: string; name: string }[] {
-  const images: { src: string; name: string }[] = []
-  if (!fs.existsSync(dirPath)) return images
+  const imageMap = new Map<string, { src: string; name: string; ext: string }>()
+  if (!fs.existsSync(dirPath)) return []
 
   const walk = (current: string, webPrefix: string) => {
     const list = fs.readdirSync(current)
@@ -79,15 +80,23 @@ function getImageList(dirPath: string, slug: string): { src: string; name: strin
       } else {
         const ext = path.extname(file).toLowerCase()
         if (!IMAGE_EXT.has(ext)) continue
-        images.push({
+        const relativeSrc = `${webPrefix}/${file}`.replace(/\\/g, '/')
+        const key = relativeSrc.slice(0, -ext.length)
+        const existing = imageMap.get(key)
+        if (existing && (EXT_PRIORITY[existing.ext] || 0) >= (EXT_PRIORITY[ext] || 0)) {
+          continue
+        }
+        imageMap.set(key, {
           src: `${webPrefix}/${file}`.replace(/\\/g, '/'),
           name: path.basename(file, ext),
+          ext,
         })
       }
     }
   }
 
   walk(dirPath, `/catalog/${slug}`)
+  const images = [...imageMap.values()].map(({ src, name }) => ({ src, name }))
   return images.sort((a, b) => a.src.localeCompare(b.src))
 }
 

@@ -4,6 +4,7 @@ import fs from 'fs'
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
 const CACHE_TTL_MS = 10 * 60 * 1000
+const EXT_PRIORITY: Record<string, number> = { '.webp': 5, '.png': 4, '.jpg': 3, '.jpeg': 2, '.gif': 1 }
 
 type PharmacyImage = {
   src: string
@@ -20,8 +21,8 @@ type PharmacyPayload = {
 let cachedPayload: { data: PharmacyPayload; expiresAt: number } | null = null
 
 function getImagesFromFolder(dir: string, type: 'ty' | 'gs' | 'plastic-gs'): PharmacyImage[] {
-  const images: PharmacyImage[] = []
-  if (!fs.existsSync(dir)) return images
+  const imageMap = new Map<string, PharmacyImage & { ext: string }>()
+  if (!fs.existsSync(dir)) return []
 
   try {
     const list = fs.readdirSync(dir)
@@ -30,10 +31,16 @@ function getImagesFromFolder(dir: string, type: 'ty' | 'gs' | 'plastic-gs'): Pha
       const stat = fs.statSync(fullPath)
       const ext = path.extname(file).toLowerCase()
       if (!stat.isDirectory() && IMAGE_EXT.includes(ext)) {
-        images.push({
+        const name = path.basename(file, ext)
+        const existing = imageMap.get(name)
+        if (existing && (EXT_PRIORITY[existing.ext] || 0) >= (EXT_PRIORITY[ext] || 0)) {
+          continue
+        }
+        imageMap.set(name, {
           src: `/catalog/pharmacy/${type}/${file}`,
-          name: path.basename(file, ext),
+          name,
           type,
+          ext,
         })
       }
     }
@@ -41,6 +48,7 @@ function getImagesFromFolder(dir: string, type: 'ty' | 'gs' | 'plastic-gs'): Pha
     // Ignore errors
   }
 
+  const images = [...imageMap.values()].map(({ ext, ...rest }) => rest)
   return images.sort((a, b) => a.src.localeCompare(b.src))
 }
 

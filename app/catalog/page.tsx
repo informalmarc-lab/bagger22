@@ -140,6 +140,7 @@ export default function Catalog() {
                         alt={product.name}
                         fill
                         priority={index < 3}
+                        loading={index < 3 ? 'eager' : 'lazy'}
                         quality={56}
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 33vw"

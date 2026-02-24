@@ -4,6 +4,7 @@ import fs from 'fs'
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
 const CACHE_TTL_MS = 10 * 60 * 1000
+const EXT_PRIORITY: Record<string, number> = { '.webp': 5, '.png': 4, '.jpg': 3, '.jpeg': 2, '.gif': 1 }
 
 type VetPayload = {
   vb1: { src: string; name: string }[]
@@ -14,8 +15,8 @@ type VetPayload = {
 let cachedPayload: { data: VetPayload; expiresAt: number } | null = null
 
 function getImagesFromFolder(dir: string, design: string): { src: string; name: string }[] {
-  const images: { src: string; name: string }[] = []
-  if (!fs.existsSync(dir)) return images
+  const imageMap = new Map<string, { src: string; name: string; ext: string }>()
+  if (!fs.existsSync(dir)) return []
 
   try {
     const list = fs.readdirSync(dir)
@@ -24,15 +25,22 @@ function getImagesFromFolder(dir: string, design: string): { src: string; name: 
       const stat = fs.statSync(fullPath)
       const ext = path.extname(file).toLowerCase()
       if (!stat.isDirectory() && IMAGE_EXT.includes(ext)) {
-        images.push({
+        const name = path.basename(file, ext)
+        const existing = imageMap.get(name)
+        if (existing && (EXT_PRIORITY[existing.ext] || 0) >= (EXT_PRIORITY[ext] || 0)) {
+          continue
+        }
+        imageMap.set(name, {
           src: `/catalog/veterinary/${design}/${file}`,
-          name: path.basename(file, ext),
+          name,
+          ext,
         })
       }
     }
   } catch {
     // ignore
   }
+  const images = [...imageMap.values()].map(({ src, name }) => ({ src, name }))
   return images.sort((a, b) => a.src.localeCompare(b.src))
 }
 

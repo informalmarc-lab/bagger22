@@ -2,6 +2,18 @@
 
 import { useState } from 'react'
 
+type ApiResult = {
+  success?: boolean
+  forwarded?: boolean
+  stored?: boolean
+  error?: string
+}
+
+type UiStatus = {
+  type: 'idle' | 'success' | 'warning' | 'error'
+  message: string
+}
+
 export default function RequestSamplePage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,16 +26,20 @@ export default function RequestSamplePage() {
     notes: '',
   })
   const [sending, setSending] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState<UiStatus>({ type: 'idle', message: '' })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    if (status.type !== 'idle') {
+      setStatus({ type: 'idle', message: '' })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (sending) return
     setSending(true)
+    setStatus({ type: 'idle', message: '' })
 
     const message = [
       'Sample request details:',
@@ -48,9 +64,30 @@ export default function RequestSamplePage() {
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to send')
+      let payload: ApiResult = {}
+      try {
+        payload = (await res.json()) as ApiResult
+      } catch {
+        payload = {}
+      }
 
-      setSubmitted(true)
+      if (!res.ok) {
+        setStatus({ type: 'error', message: payload.error || 'Failed to send sample request. Please try again.' })
+        return
+      }
+
+      if (payload.forwarded) {
+        setStatus({ type: 'success', message: 'Sample request sent and delivered to our team.' })
+      } else if (payload.stored) {
+        setStatus({
+          type: 'warning',
+          message: 'Sample request received and saved, but live team notification is currently unavailable.',
+        })
+      } else {
+        setStatus({ type: 'error', message: 'Sample request was not processed. Please try again.' })
+        return
+      }
+
       setFormData({
         name: '',
         email: '',
@@ -61,14 +98,22 @@ export default function RequestSamplePage() {
         shippingAddress: '',
         notes: '',
       })
-      setTimeout(() => setSubmitted(false), 3000)
     } catch (err) {
       console.error('Sample request error:', err)
-      alert('Failed to send sample request. Please try again.')
+      setStatus({ type: 'error', message: 'Failed to send sample request. Please try again.' })
     } finally {
       setSending(false)
     }
   }
+
+  const statusClassName =
+    status.type === 'success'
+      ? 'bg-green-50 border-green-200 text-green-700'
+      : status.type === 'warning'
+        ? 'bg-amber-50 border-amber-200 text-amber-700'
+        : status.type === 'error'
+          ? 'bg-red-50 border-red-200 text-red-700'
+          : ''
 
   return (
     <div className="bg-primary-50">
@@ -130,11 +175,11 @@ export default function RequestSamplePage() {
                 <textarea id="notes" name="notes" value={formData.notes} onChange={handleChange} rows={4} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"></textarea>
               </div>
 
-              {submitted && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl font-semibold">
-                  Thank you. Your sample request has been sent.
+              {status.type !== 'idle' ? (
+                <div className={`border px-4 py-3 rounded-xl font-semibold ${statusClassName}`}>
+                  {status.message}
                 </div>
-              )}
+              ) : null}
 
               <button
                 type="submit"

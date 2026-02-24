@@ -2,6 +2,18 @@
 
 import { useState } from 'react'
 
+type ApiResult = {
+  success?: boolean
+  forwarded?: boolean
+  stored?: boolean
+  error?: string
+}
+
+type UiStatus = {
+  type: 'idle' | 'success' | 'warning' | 'error'
+  message: string
+}
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,17 +25,22 @@ export default function ContactPage() {
     message: '',
   })
 
-  const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
+  const [status, setStatus] = useState<UiStatus>({ type: 'idle', message: '' })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    if (status.type !== 'idle') {
+      setStatus({ type: 'idle', message: '' })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (sending) return
+
     setSending(true)
+    setStatus({ type: 'idle', message: '' })
 
     try {
       const res = await fetch('/api/contact', {
@@ -32,9 +49,31 @@ export default function ContactPage() {
         body: JSON.stringify(formData),
       })
 
-      if (!res.ok) throw new Error('Failed to send')
+      let payload: ApiResult = {}
+      try {
+        payload = (await res.json()) as ApiResult
+      } catch {
+        payload = {}
+      }
 
-      setSubmitted(true)
+      if (!res.ok) {
+        setStatus({ type: 'error', message: payload.error || 'Failed to send message. Please try again.' })
+        return
+      }
+
+      if (payload.forwarded) {
+        setStatus({ type: 'success', message: 'Message sent successfully and delivered to our team.' })
+      } else if (payload.stored) {
+        setStatus({
+          type: 'warning',
+          message:
+            'Message received and saved, but live team notification is currently unavailable. We will still follow up.',
+        })
+      } else {
+        setStatus({ type: 'error', message: 'Submission was not processed. Please try again.' })
+        return
+      }
+
       setFormData({
         name: '',
         email: '',
@@ -44,20 +83,25 @@ export default function ContactPage() {
         quantity: '',
         message: '',
       })
-
-      // Keep the thank-you visible briefly
-      setTimeout(() => setSubmitted(false), 3000)
     } catch (err) {
       console.error('Send error:', err)
-      alert('Failed to send message. Please try again.')
+      setStatus({ type: 'error', message: 'Failed to send message. Please try again.' })
     } finally {
       setSending(false)
     }
   }
 
+  const statusClassName =
+    status.type === 'success'
+      ? 'bg-green-50 border-green-200 text-green-700'
+      : status.type === 'warning'
+        ? 'bg-amber-50 border-amber-200 text-amber-700'
+        : status.type === 'error'
+          ? 'bg-red-50 border-red-200 text-red-700'
+          : ''
+
   return (
     <div className="bg-primary-50">
-      {/* Header */}
       <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative z-10">
@@ -66,11 +110,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section className="py-20 bg-gradient-to-b from-primary-50 to-gray-50">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Info (left) */}
             <div className="bg-primary-50 rounded-2xl shadow-xl p-8">
               <h2 className="text-3xl font-extrabold mb-6 text-gray-800">Get in Touch</h2>
               <p className="text-gray-700 mb-8 text-lg leading-relaxed">
@@ -78,7 +120,6 @@ export default function ContactPage() {
               </p>
 
               <div className="space-y-6">
-                {/* Email */}
                 <div className="flex items-start p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl transition-transform duration-200">
                   <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4 shadow-lg flex-shrink-0">
                     <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +134,6 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Phone */}
                 <div className="flex items-start p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl transition-transform duration-200">
                   <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4 shadow-lg flex-shrink-0">
                     <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +148,6 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Mailing Address */}
                 <div className="flex items-start p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl transition-transform duration-200">
                   <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4 shadow-lg flex-shrink-0">
                     <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +166,6 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Contact Form (right) */}
             <div className="bg-primary-50 rounded-2xl shadow-xl p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -177,7 +215,11 @@ export default function ContactPage() {
                   <textarea id="message" name="message" value={formData.message} onChange={handleChange} required rows={5} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"></textarea>
                 </div>
 
-                {submitted && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl font-semibold">Thank you! Your message has been sent. We'll get back to you soon.</div>}
+                {status.type !== 'idle' ? (
+                  <div className={`border px-4 py-3 rounded-xl font-semibold ${statusClassName}`}>
+                    {status.message}
+                  </div>
+                ) : null}
 
                 <button
                   type="submit"

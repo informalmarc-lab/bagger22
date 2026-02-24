@@ -1,1 +1,3 @@
-node_modules/\n.next/\nnext-env.d.ts
+node_modules
+.next
+next-env.d.ts

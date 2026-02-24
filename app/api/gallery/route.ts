@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+const EXT_PRIORITY: Record<string, number> = { '.webp': 5, '.png': 4, '.jpg': 3, '.jpeg': 2, '.gif': 1 }
 const CACHE_TTL_MS = 5 * 60 * 1000
 const DEFAULT_LIMIT = 160
 const MAX_LIMIT = 800
@@ -13,14 +14,14 @@ type GalleryManifest = { images: GalleryImage[]; folders: string[] }
 let cachedManifest: { data: GalleryManifest; expiresAt: number } | null = null
 
 function getImages(dir: string): GalleryImage[] {
-  const results: GalleryImage[] = []
+  const results: (GalleryImage & { ext: string })[] = []
   let list: string[] = []
 
   try {
-    if (!fs.existsSync(dir)) return results
+    if (!fs.existsSync(dir)) return []
     list = fs.readdirSync(dir)
   } catch {
-    return results
+    return []
   }
 
   for (const file of list) {
@@ -29,7 +30,11 @@ function getImages(dir: string): GalleryImage[] {
     const ext = path.extname(file).toLowerCase()
 
     if (stat.isDirectory()) {
-      results.push(...getImages(fullPath))
+      const nested = getImages(fullPath).map((entry) => ({
+        ...entry,
+        ext: path.extname(entry.src).toLowerCase(),
+      }))
+      results.push(...nested)
     } else if (IMAGE_EXT.includes(ext)) {
       const publicDir = path.join(process.cwd(), 'public')
       const relative = path.relative(publicDir, fullPath).replace(/\\/g, '/')
@@ -42,11 +47,22 @@ function getImages(dir: string): GalleryImage[] {
         src: '/' + relative,
         folder: folderRelative === '.' || folderRelative === '' ? 'gallery' : folderRelative,
         name: path.basename(file, ext),
+        ext,
       })
     }
   }
 
-  return results
+  const imageMap = new Map<string, GalleryImage & { ext: string }>()
+  for (const entry of results) {
+    const key = entry.src.slice(0, -entry.ext.length)
+    const existing = imageMap.get(key)
+    if (existing && (EXT_PRIORITY[existing.ext] || 0) >= (EXT_PRIORITY[entry.ext] || 0)) {
+      continue
+    }
+    imageMap.set(key, entry)
+  }
+
+  return [...imageMap.values()].map(({ ext, ...rest }) => rest)
 }
 
 function shuffleInPlace<T>(list: T[]) {

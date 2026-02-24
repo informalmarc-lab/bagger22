@@ -6,7 +6,9 @@
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "compress:images": "node scripts/compress-images.mjs",
+    "warmup:images": "node scripts/warmup-images.mjs"
   },
   "dependencies": {
     "next": "^14.0.0",
@@ -19,6 +21,7 @@
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2"
   }

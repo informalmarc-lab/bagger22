@@ -59,6 +59,7 @@ export default function CatalogImageGrid({ images }: { images: CatalogImage[] })
                 alt={img.name}
                 fill
                 priority={idx < 8}
+                loading={idx < 8 ? 'eager' : 'lazy'}
                 quality={56}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
