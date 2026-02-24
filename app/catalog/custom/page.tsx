@@ -144,6 +144,7 @@ export default function CustomGallery() {
                       src={img.src}
                       alt={img.name}
                       fill
+                      quality={64}
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
@@ -265,8 +266,8 @@ export default function CustomGallery() {
               alt={selectedImage.name}
               width={1200}
               height={1200}
+              quality={82}
               className="max-w-full max-h-full object-contain"
-              unoptimized
             />
           </div>
         </div>

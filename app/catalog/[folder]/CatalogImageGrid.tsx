@@ -58,6 +58,7 @@ export default function CatalogImageGrid({ images }: { images: CatalogImage[] })
                 src={img.src}
                 alt={img.name}
                 fill
+                quality={65}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
@@ -89,8 +90,8 @@ export default function CatalogImageGrid({ images }: { images: CatalogImage[] })
               alt={selectedImage.name}
               width={1400}
               height={1400}
+              quality={82}
               className="max-w-full max-h-full object-contain"
-              unoptimized
             />
           </div>
         </div>

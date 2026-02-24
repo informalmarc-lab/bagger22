@@ -136,10 +136,11 @@ export default function Catalog() {
                   <div className="h-64 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center relative overflow-hidden">
                     {productImage ? (
                       <Image
-                        key={`${productImage}-${Date.now()}`}
                         src={productImage}
                         alt={product.name}
                         fill
+                        priority={index === 0}
+                        quality={68}
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />

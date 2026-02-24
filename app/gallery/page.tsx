@@ -12,7 +12,7 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
 
   useEffect(() => {
-    fetch('/api/gallery?limit=160')
+    fetch('/api/gallery?limit=120')
       .then((res) => res.json())
       .then((data) => {
         setImages(data.images || [])
@@ -86,7 +86,7 @@ export default function Gallery() {
                       alt={img.name}
                       fill
                       priority={idx < 8}
-                      quality={65}
+                      quality={62}
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
@@ -130,8 +130,8 @@ export default function Gallery() {
               alt={selectedImage.name}
               width={1200}
               height={1200}
+              quality={80}
               className="max-w-full max-h-full object-contain"
-              unoptimized
             />
           </div>
         </div>
