@@ -27,6 +27,9 @@ export default function Navbar() {
             <Link href="/catalog" className="text-slate-700 hover:text-primary-700 font-semibold px-3 py-2 rounded-lg transition-colors hover:bg-primary-50">
               Catalog
             </Link>
+            <Link href="/quote-builder" className="text-slate-700 hover:text-primary-700 font-semibold px-3 py-2 rounded-lg transition-colors hover:bg-primary-50">
+              Quote Builder
+            </Link>
             <Link href="/shipping" className="text-slate-700 hover:text-primary-700 font-semibold px-3 py-2 rounded-lg transition-colors hover:bg-primary-50">
               Shipping
             </Link>
@@ -84,6 +87,13 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 Catalog
+              </Link>
+              <Link 
+                href="/quote-builder" 
+                className="text-slate-700 hover:text-primary-600 font-medium transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Quote Builder
               </Link>
               <Link 
                 href="/shipping" 
