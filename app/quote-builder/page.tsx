@@ -3,15 +3,17 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
-type BagType = 'custom1' | 'custom2' | 'stock'
+const SIZE_ORDER = ['21', '22', '23', '25', '26', '28', '12', '14', '15', '32', '35', '30'] as const
 type BagSize = (typeof SIZE_ORDER)[number]
 
-const SIZE_ORDER = ['21', '22', '23', '25', '26', '28', '12', '14', '15', '32', '35', '30'] as const
-
-const PRICING: Record<BagType, Record<string, number>> = {
-  custom1: { '21': 95.56, '22': 119.8, '23': 117.4, '25': 133.08, '26': 102.29, '28': 112.1, '12': 115.35, '14': 99.68, '15': 95.78 },
-  custom2: { '21': 119.46, '22': 149.76, '23': 146.76, '25': 166.36, '26': 127.86, '28': 140.12, '12': 144.18, '14': 124.61, '15': 119.71 },
-  stock: { '21': 95.56, '22': 119.81, '23': 117.41, '25': 65.91, '26': 102.29, '28': 112.1, '12': 115.35, '14': 99.69, '15': 95.78, '32': 70.84, '35': 90.84, '30': 116.03 },
+const BAG_DESIGNS: Record<string, Record<string, number>> = {
+  GS: { '21': 95.56, '22': 119.81, '23': 117.42, '25': 65.91, '26': 102.29, '28': 112.1, '12': 115.35, '14': 99.69, '15': 95.78, '32': 70.84, '35': 90.84, '30': 116.03 },
+  TY: { '21': 95.56, '22': 119.81, '23': 117.41, '25': 65.91, '26': 102.29, '28': 112.1, '12': 115.35, '14': 99.69, '15': 95.78 },
+  VB1: { '12': 115.35, '22': 119.81, '25': 65.91 },
+  VB2: { '12': 115.35, '22': 119.81, '25': 65.91 },
+  VB6: { '12': 115.35, '22': 119.81, '25': 65.91 },
+  DS: { '12': 45.0, '21': 36.0, '23': 39.0, '25': 35.0 },
+  PlasticGS: { '32': 70.84, '35': 90.84, '30': 116.03 },
 }
 
 const UNITS_PER_CASE: Record<string, number> = {
@@ -44,22 +46,24 @@ const SIZE_DIMS: Record<string, string> = {
   '30': '12" x 7" x 25"',
 }
 
+const DESIGN_OPTIONS = Object.keys(BAG_DESIGNS)
+
 export default function QuoteBuilderPage() {
-  const [type, setType] = useState<BagType>('custom1')
-  const [size, setSize] = useState<BagSize>('21')
+  const [design, setDesign] = useState('GS')
+  const [size, setSize] = useState<BagSize>((Object.keys(BAG_DESIGNS.GS)[0] || '21') as BagSize)
   const [cases, setCases] = useState(4)
   const [isReorder, setIsReorder] = useState(false)
 
-  const sizeOptions = useMemo(
-    () => SIZE_ORDER.filter((id) => PRICING[type][id] !== undefined),
-    [type]
-  )
+  const sizeOptions = useMemo(() => {
+    const available = Object.keys(BAG_DESIGNS[design] || {})
+    return SIZE_ORDER.filter((id) => available.includes(id))
+  }, [design])
 
   const selectedSize = sizeOptions.includes(size) ? size : sizeOptions[0]
-  const casePrice = PRICING[type][selectedSize] || 0
+  const casePrice = BAG_DESIGNS[design]?.[selectedSize] || 0
   const validCases = Number.isFinite(cases) ? Math.max(4, Math.floor(cases)) : 4
   const subtotal = casePrice * validCases
-  const artFee = !isReorder && type.startsWith('custom') ? 50 : 0
+  const artFee = !isReorder && !design.startsWith('V') && design !== 'DS' ? 50 : 0
   const total = subtotal + artFee
   const totalUnits = (UNITS_PER_CASE[selectedSize] || 0) * validCases
 
@@ -72,7 +76,7 @@ export default function QuoteBuilderPage() {
             Back to Catalog
           </Link>
           <h1 className="text-5xl md:text-6xl font-extrabold">Build Your Bag Quote</h1>
-          <p className="text-xl md:text-2xl mt-4 text-primary-100">Instant estimate by bag type, size, and case count</p>
+          <p className="text-xl md:text-2xl mt-4 text-primary-100">Design-based estimate by size and case count</p>
         </div>
       </section>
 
@@ -80,23 +84,23 @@ export default function QuoteBuilderPage() {
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="bg-primary-50 rounded-2xl shadow-xl p-8 space-y-6">
             <div>
-              <label htmlFor="quote-type" className="block text-sm font-semibold text-gray-700 mb-2">Bag Type / Print</label>
+              <label htmlFor="quote-design" className="block text-sm font-semibold text-gray-700 mb-2">Bag Design / Type</label>
               <select
-                id="quote-type"
-                value={type}
-                onChange={(e) => {
-                  const nextType = e.target.value as BagType
-                  const nextOptions = SIZE_ORDER.filter((id) => PRICING[nextType][id] !== undefined)
-                  setType(nextType)
-                  if (!nextOptions.includes(selectedSize)) {
-                  setSize((nextOptions[0] || '21') as BagSize)
-                }
-              }}
+                id="quote-design"
+                value={design}
+                onChange={(event) => {
+                  const nextDesign = event.target.value
+                  const nextSizes = Object.keys(BAG_DESIGNS[nextDesign] || {})
+                  setDesign(nextDesign)
+                  setSize((nextSizes[0] || '21') as BagSize)
+                }}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
               >
-                <option value="custom1">Custom 1-Color</option>
-                <option value="custom2">Custom 3-Color</option>
-                <option value="stock">Stock Bags</option>
+                {DESIGN_OPTIONS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -105,15 +109,16 @@ export default function QuoteBuilderPage() {
               <select
                 id="quote-size"
                 value={selectedSize}
-                onChange={(e) => setSize(e.target.value as BagSize)}
+                onChange={(event) => setSize(event.target.value as BagSize)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
               >
                 {sizeOptions.map((id) => (
                   <option key={id} value={id}>
-                    #{id} - {SIZE_DIMS[id]} - {UNITS_PER_CASE[id].toLocaleString()} per case
+                    #{id} - {UNITS_PER_CASE[id].toLocaleString()} per case - ${BAG_DESIGNS[design][id].toFixed(2)}
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-gray-500 mt-2">Dimensions: {SIZE_DIMS[selectedSize]}</p>
             </div>
 
             <div>
@@ -123,7 +128,7 @@ export default function QuoteBuilderPage() {
                 type="number"
                 min={4}
                 value={validCases}
-                onChange={(e) => setCases(Number(e.target.value))}
+                onChange={(event) => setCases(Number(event.target.value))}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
               />
             </div>
@@ -133,7 +138,7 @@ export default function QuoteBuilderPage() {
               <select
                 id="quote-order-type"
                 value={isReorder ? 'reorder' : 'first'}
-                onChange={(e) => setIsReorder(e.target.value === 'reorder')}
+                onChange={(event) => setIsReorder(event.target.value === 'reorder')}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
               >
                 <option value="first">First-Time Order</option>
@@ -149,7 +154,7 @@ export default function QuoteBuilderPage() {
               <p className="text-gray-700">4 Week Lead Time</p>
               <p className="text-gray-700">Free Freight on 8+ Cases (Commercial Address)</p>
               <p className="font-semibold text-gray-800">Shipping not included in total.</p>
-              {!isReorder && type.startsWith('custom') ? <p className="text-primary-700 font-semibold">$50 Art/Plate Fee Applied</p> : null}
+              {!isReorder && artFee > 0 ? <p className="text-primary-700 font-semibold">$50 Art/Plate Fee Applied</p> : null}
             </div>
 
             <div className="pt-2">
