@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { FULL_CUSTOM_SIZE_SUMMARY } from './specs'
 
 const collections = [
   { name: 'Dispensary Bags', slug: 'dispensary' },
@@ -20,9 +21,9 @@ const collections = [
 ]
 
 const customProducts = [
-  { id: 1, name: 'Full-Custom, 1-Color Bags', price: '95.56' },
-  { id: 2, name: 'Full-Custom, 2-Color Bags', price: '95.56' },
-  { id: 3, name: 'Full-Custom, 3-Color Bags', price: '119.46' },
+  { id: 1, name: 'Full-Custom, 1-Color Bags' },
+  { id: 2, name: 'Full-Custom, 2-Color Bags' },
+  { id: 3, name: 'Full-Custom, 3-Color Bags' },
 ]
 
 export default function Catalog() {
@@ -153,7 +154,9 @@ export default function Catalog() {
                   </div>
                   <div className="p-8">
                     <h3 className="text-2xl font-bold mb-3 text-gray-800">{product.name}</h3>
-                    <p className="text-primary-600 font-bold text-lg mb-6">From ${product.price} USD</p>
+                    <p className="text-primary-700 font-semibold text-sm mb-6">
+                      Standard sizes: {FULL_CUSTOM_SIZE_SUMMARY}
+                    </p>
                     <Link
                       href="/contact"
                       className="block w-full text-center bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg hover:shadow-xl"

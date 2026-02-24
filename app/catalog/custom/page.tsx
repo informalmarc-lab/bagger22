@@ -3,20 +3,22 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { FULL_CUSTOM_STANDARD_SIZES } from '../specs'
 
 type CustomImage = { src: string; name: string }
 
 const INTRO =
-  'Full-Custom bags for your company are just a click away. Choose a 1-, 2-, or 3-Color design to suit your needs and company brand below. Upon receipt of your order, our Sales Representatives will be in touch to receive your artwork, review proofs, and schedule the final delivery of your company\'s best bags ever. When ordering 10 cases or more, please call (252) 516-1944.'
+  'Full-Custom bags for your company are just a click away. Choose a 1-, 2-, or 3-Color design to suit your needs and company brand below. Upon receipt of your order, our Sales Representatives will be in touch to receive your artwork, review proofs, and schedule the final delivery of your company\'s best bags ever. When ordering 10 cases or more, please call 1-800-526-9032.'
 
 const BULLETS = [
   '4 Case Minimum Order',
-  'Orders over 10 Cases, Please Call (252) 516-1944',
+  'Orders over 10 Cases, Please Call 1-800-526-9032',
   'Can Print on Front, Back, and Gussets (folded sides)',
   '30-50# Machine-Finished Paper',
   'Pinch-Bottom with Gusset or Flat-Bottom Styles',
   '4 Week Lead Time',
   '$50 Art/Plate Fee Applies to Initial Order and/or Re-Orders Requiring Changes',
+  'Additional Art/Plate Fees May Apply to Back and/or Gusset Printing',
   'FREE FREIGHT to Commercial Address for Orders of 8 Cases or More',
   'Orders Under 8 Total Cases Billed Standard UPS Shipping Rates',
 ]
@@ -29,39 +31,19 @@ const CUSTOM_SECTIONS = {
     title: 'Full-Custom, 1-Color Bags',
     tagline: 'FULL-CUSTOM, 1-COLOR, BAGS ARE A HIGH VALUE OPTION!',
     bullets: ['Includes Custom Printing in 1 Stock Colors', ...BULLETS],
-    sizes: null,
+    sizes: FULL_CUSTOM_STANDARD_SIZES,
   },
   '2-color': {
     title: 'Full-Custom, 2-Color Bags',
     tagline: 'FULL-CUSTOM, 2-COLOR, BAGS ARE OUR MOST POPULAR OPTION!',
     bullets: ['Includes Custom Printing in 2 Stock Colors', ...BULLETS],
-    sizes: [
-      { id: '#21', dims: '3.5" x 1.5" x 10"', qty: '3,000 per case' },
-      { id: '#22', dims: '4.5" x 2.25" x 11"', qty: '3,000 per case' },
-      { id: '#23', dims: '5" x 2" x 10"', qty: '3,000 per case' },
-      { id: '#25', dims: '6" x 4" x 11"', qty: '2,000 per case' },
-      { id: '#26', dims: '7" x 4" x 14"', qty: '1,000 per case' },
-      { id: '#28', dims: '8" x 5" x 17"', qty: '500 per case' },
-      { id: '#12', dims: '7" x 10"', qty: '3,000 per case' },
-      { id: '#14', dims: '9" x 11"', qty: '2,000 per case' },
-      { id: '#15', dims: '8.5" x 3.5" x 14.5"', qty: '1,000 per case' },
-    ],
+    sizes: FULL_CUSTOM_STANDARD_SIZES,
   },
   '3-color': {
     title: 'Full-Custom, 3-Color Bags',
     tagline: 'FULL-CUSTOM, 3-COLOR, BAGS ADD A SPLASH TO YOUR CHECKOUT!',
     bullets: ['Includes Custom Printing in 3 Stock Colors', ...BULLETS],
-    sizes: [
-      { id: '#21', dims: '3.5" x 1.5" x 10"', qty: '3,000 per case' },
-      { id: '#22', dims: '4.5" x 2.25" x 11"', qty: '3,000 per case' },
-      { id: '#23', dims: '5" x 2" x 10"', qty: '3,000 per case' },
-      { id: '#25', dims: '6" x 4" x 11"', qty: '2,000 per case' },
-      { id: '#26', dims: '7" x 4" x 14"', qty: '1,000 per case' },
-      { id: '#28', dims: '8" x 5" x 17"', qty: '500 per case' },
-      { id: '#12', dims: '7" x 10"', qty: '3,000 per case' },
-      { id: '#14', dims: '9" x 11"', qty: '2,000 per case' },
-      { id: '#15', dims: '8.5" x 3.5" x 14.5"', qty: '1,000 per case' },
-    ],
+    sizes: FULL_CUSTOM_STANDARD_SIZES,
   },
 } as const
 
