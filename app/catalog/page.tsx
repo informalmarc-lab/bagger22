@@ -31,7 +31,7 @@ export default function Catalog() {
 
   useEffect(() => {
     // Fetch images from custom catalog - each product gets image from its matching folder
-    fetch('/api/catalog/custom?' + Date.now())
+    fetch('/api/catalog/custom')
       .then((res) => res.json())
       .then((data) => {
         const selected: string[] = []

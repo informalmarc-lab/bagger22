@@ -12,13 +12,10 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
 
   useEffect(() => {
-    fetch('/api/gallery')
+    fetch('/api/gallery?limit=160')
       .then((res) => res.json())
       .then((data) => {
-        const allImages = data.images || []
-        // Randomize images on each load
-        const shuffled = [...allImages].sort(() => Math.random() - 0.5)
-        setImages(shuffled)
+        setImages(data.images || [])
       })
       .catch(() => setImages([]))
       .finally(() => setLoading(false))
@@ -88,6 +85,8 @@ export default function Gallery() {
                       src={img.src}
                       alt={img.name}
                       fill
+                      priority={idx < 8}
+                      quality={65}
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
