@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 const COOKIE_NAME = 'bagco_employee_auth'
-const DEFAULT_PASSWORD = 'Bagsarefun'
+const DEFAULT_PASSWORD = 'bagsarecool3312'
 
 export async function POST(req: Request) {
   try {
