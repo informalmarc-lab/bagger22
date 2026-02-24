@@ -16,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/shipping',
     '/contact',
     '/request-sample',
-    '/quote-builder',
   ]
 
   const catalogRoot = path.join(process.cwd(), 'public', 'catalog')

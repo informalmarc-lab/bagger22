@@ -116,8 +116,17 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 mt-12 pt-8 text-center">
-          <p className="text-slate-500">&copy; {new Date().getFullYear()} Bagco. All rights reserved.</p>
+        <div className="border-t border-slate-800 mt-12 pt-8">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-slate-500 text-center md:text-left">&copy; {new Date().getFullYear()} Bagco. All rights reserved.</p>
+            <Link
+              href="/employee-login"
+              className="text-[11px] tracking-wide text-slate-700 hover:text-slate-500 transition-colors opacity-40 hover:opacity-90"
+              aria-label="Employee access"
+            >
+              Employee Access
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
