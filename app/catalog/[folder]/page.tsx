@@ -42,7 +42,7 @@ const LABELS: Record<string, { title: string; description: string }> = {
   },
   pride: {
     title: 'Pride Bags',
-    description: 'Pride-themed paper bag designs for inclusive retail programs.',
+    description: 'Pride-themed paper bag designs for inclusive retail orders.',
   },
   seasonal: {
     title: 'Seasonal & Holiday Bags',

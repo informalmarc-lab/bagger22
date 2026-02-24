@@ -40,7 +40,7 @@ const faqSchema = {
 
 const stats = [
   { value: '24h', label: 'Typical quote response' },
-  { value: '4+', label: 'Case minimum on custom programs' },
+  { value: '4+', label: 'Case minimum on custom orders' },
   { value: 'US', label: 'Shipping support nationwide' },
 ]
 
@@ -69,7 +69,7 @@ const processSteps = [
   },
   {
     title: '2. Review options',
-    body: 'We recommend size, paper type, and print approach that fits your operation.',
+    body: 'We recommend size plus generic or custom print options that fit your operation. We use one standard paper type.',
   },
   {
     title: '3. Confirm and produce',
@@ -94,7 +94,7 @@ export default function Home() {
               Paper Bags That Carry Your Brand With Confidence
             </h1>
             <p className="mt-6 max-w-3xl text-lg text-primary-100 md:text-xl">
-              Bagco builds dependable paper bag programs for pharmacy, veterinary, dispensary, and specialty retail
+              Bagco builds dependable paper bag orders for pharmacy, veterinary, dispensary, and specialty retail
               businesses across the U.S.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -170,7 +170,7 @@ export default function Home() {
               <article>
                 <h3 className="font-bold text-slate-800">Minimum order size?</h3>
                 <p className="mt-2 text-slate-600">
-                  Custom programs typically start at multi-case quantities. Contact us for exact options.
+                  Custom orders typically start at multi-case quantities. Contact us for exact options.
                 </p>
               </article>
               <article>
@@ -193,7 +193,7 @@ export default function Home() {
       <section className="relative overflow-hidden py-20">
         <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-900" />
         <div className="section-container relative z-10 text-center">
-          <h2 className="heading-serif text-4xl font-bold text-white md:text-5xl">Ready to Start Your Bag Program?</h2>
+          <h2 className="heading-serif text-4xl font-bold text-white md:text-5xl">Ready to Start Your Bag Order?</h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-primary-100">
             Request pricing or samples and our team will help you choose the right size, style, and print plan.
           </p>

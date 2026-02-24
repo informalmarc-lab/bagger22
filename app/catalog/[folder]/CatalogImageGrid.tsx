@@ -46,7 +46,7 @@ export default function CatalogImageGrid({ images }: { images: CatalogImage[] })
   return (
     <>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {images.map((img) => (
+        {images.map((img, idx) => (
           <button
             key={img.src}
             type="button"
@@ -58,7 +58,8 @@ export default function CatalogImageGrid({ images }: { images: CatalogImage[] })
                 src={img.src}
                 alt={img.name}
                 fill
-                quality={65}
+                priority={idx < 8}
+                quality={56}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
